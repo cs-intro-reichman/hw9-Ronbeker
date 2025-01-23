@@ -54,8 +54,11 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		//// Replace the following statement with your code
-		return null;
+		Node block = first;
+		for(int i = 0; i<index;i++){
+			block = block.next;
+		}
+		return block;
 	}
 	
 	/**
@@ -78,7 +81,31 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		//// Write your code here
+		if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		Node newBlock = new Node(block);
+		if(index == 0) {
+			newBlock.next = this.first;
+			this.first = newBlock;
+			if(this.size == 0) {
+				this.last = newBlock;
+			}
+		}
+		else if(index == size) {
+			this.last.next = newBlock;
+			this.last = newBlock;
+			if(this.size == 0){
+				this.first = newBlock;
+			}
+		}
+		else {
+			Node current = this.getNode(index-1);
+			newBlock.next = current.next;
+			current.next = newBlock;
+		}
+		this.size++;
 	}
 
 	/**
@@ -89,7 +116,7 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		//// Write your code here
+		add(size,block);
 	}
 	
 	/**
@@ -100,7 +127,7 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addFirst(MemoryBlock block) {
-		//// Write your code here
+		add(0,block);
 	}
 
 	/**
@@ -113,8 +140,11 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		//// Replace the following statement with your code
-		return null;
+		if (index < 0 || index > this.size || this.size == 0) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		return this.getNode(index).block;
 	}	
 
 	/**
@@ -125,7 +155,11 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		//// Replace the following statement with your code
+		for(int i = 0; i<size;i++){
+			if(this.getBlock(i) == block) {
+				return i;
+			}
+		}
 		return -1;
 	}
 
@@ -136,7 +170,29 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		//// Write your code here
+		Node curr = this.first;
+		if(curr.equals(node)) {
+			this.first = this.first.next;
+			if(this.size == 1) {
+				this.last = null;
+			}
+			this.size--;
+			return;
+		}
+		while(curr.next != null) {
+			if(curr.next.equals(node)) {
+				if(curr.next.equals(this.last)) {
+					this.last = curr;
+					curr.next = null;
+				}
+				else {
+					curr.next = curr.next.next;
+				}
+				size--;
+				return;
+			}
+			curr = curr.next;
+		}
 	}
 
 	/**
@@ -147,7 +203,11 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		//// Write your code here
+		if (index < 0 || index > size || this.size == 0) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		this.remove(this.getNode(index));
 	}
 
 	/**
@@ -158,10 +218,16 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		//// Write your code here
+		if(this.indexOf(block) == -1){
+			throw  new IllegalArgumentException(
+				"index must be between 0 and size");
+		}
+		int index = indexOf(block);
+		Node toRemove = this.getNode(index);
+		this.remove(toRemove);
 	}	
 
-	/**
+	/*
 	 * Returns an iterator over this list, starting with the first element.
 	 */
 	public ListIterator iterator(){
@@ -172,7 +238,12 @@ public class LinkedList {
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		//// Replace the following statement with your code
-		return "";
+		String output = "";
+		Node current = this.first;
+		while(current != null) {
+			output += current.block + " ";
+			current = current.next;
+		}
+		return output;
 	}
 }

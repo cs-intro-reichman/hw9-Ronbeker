@@ -58,7 +58,23 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		//// Replace the following statement with your code
+		Node curr = this.freeList.getFirst();
+		while(curr != null) {
+			MemoryBlock block = curr.block;
+			if(block.length >= length) {
+				int address = block.baseAddress;
+				this.allocatedList.addLast(new MemoryBlock(address,length));
+				if(block.length == length) {
+					this.freeList.remove(block);
+				}
+				else {
+					block.baseAddress += length;
+					block.length -= length;
+				}
+				return address;
+			}
+			curr = curr.next;
+		}
 		return -1;
 	}
 
@@ -71,7 +87,18 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (this.allocatedList.getFirst() == null) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
+		Node curr = this.allocatedList.getFirst();
+		while(curr != null) {
+			if(curr.block.baseAddress == address) {
+				this.allocatedList.remove(curr);
+				this.freeList.addLast(curr.block);
+			}
+			curr = curr.next;
+		}
 	}
 	
 	/**
@@ -88,7 +115,26 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		if(this.freeList.getSize() <= 1) {
+			return;
+		}
+		Node curr = this.freeList.getFirst();
+		Node match; 
+		while(curr != null) {
+			int val = curr.block.baseAddress + curr.block.length;
+			match = this.freeList.getFirst();
+			while(match != null) {
+				if(match.block.baseAddress + match.block.length == curr.block.baseAddress || match.block.baseAddress == val && match.block != curr.block) {
+					curr.block.length += match.block.length;
+					if(match.block.baseAddress < curr.block.baseAddress) {
+						curr.block.baseAddress = match.block.baseAddress;
+					}
+					val = curr.block.baseAddress + curr.block.length;
+					this.freeList.remove(match);
+				}
+				match = match.next;
+			}
+			curr = curr.next;
+		}
 	}
 }
